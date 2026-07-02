@@ -20,7 +20,7 @@ Designed with a sleek, dark OBS Studio-style UI, this application allows you to 
 * **Ctrl + 0**: Reset crop of selected source
 
 ## Live Demo
-*(Insert your live Vercel URL here once deployed!)*
+*https://mulltistream.vercel.app/*
 
 ## Local Usage
 If you want to run this locally:
