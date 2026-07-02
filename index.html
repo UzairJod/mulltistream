@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multistream Canvas - OBS Style</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=3">
+</head>
+<body class="theme-dark">
+    <!-- Top Toolbar -->
+    <header class="top-toolbar" id="top-toolbar">
+        <div class="toolbar-left">
+            <div class="brand-lockup">
+                <svg class="brand-logo" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="2" width="14" height="14" rx="2.5"></rect>
+                    <rect x="8" y="8" width="14" height="14" rx="2.5"></rect>
+                </svg>
+                <div class="brand-text-wrapper">
+                    <span class="logo">Multistream Canvas</span>
+                    <span class="subscript">by Uzair</span>
+                </div>
+            </div>
+        </div>
+        <div class="toolbar-center">
+            <button id="btn-add-source" class="btn primary" title="Add Source">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Source
+            </button>
+            <div class="divider"></div>
+            <button id="btn-remove-source" class="btn secondary" title="Remove Selected (Del)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Remove Source
+            </button>
+            <button id="btn-fit-source" class="btn secondary" title="Fit Selected to Canvas (Ctrl+0)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14v6h6M20 10V4h-6M10 20H4M14 4h6"></path></svg>
+                Fit Source
+            </button>
+            <button id="btn-reset-crop" class="btn secondary" title="Reset Crop on Selected">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><polyline points="3 3 3 8 8 8"></polyline></svg>
+                Reset Crop
+            </button>
+            <button id="btn-shortcuts" class="btn secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                Shortcuts
+            </button>
+            <button id="btn-fullscreen" class="btn secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                Fullscreen
+            </button>
+        </div>
+        <div class="toolbar-right">
+        </div>
+    </header>
+
+    <!-- Main Workspace Area containing Preview Canvas -->
+    <main class="workspace-area">
+        <div class="preview-wrapper" id="preview-wrapper">
+            <!-- 
+              The canvas always maintains 16:9 aspect ratio and is centered.
+              Internal logic assumes 1920x1080 bounds. We scale it visually via CSS transform.
+            -->
+            <div class="preview-canvas" id="preview-canvas">
+                <!-- Selected Source Handles Overlay (Shared across all to avoid duplicating DOM) -->
+                <div class="selection-overlay" id="selection-overlay" style="display: none;">
+                    <div class="resize-handle nw" data-handle="nw"></div>
+                    <div class="resize-handle n" data-handle="n"></div>
+                    <div class="resize-handle ne" data-handle="ne"></div>
+                    <div class="resize-handle w" data-handle="w"></div>
+                    <div class="resize-handle e" data-handle="e"></div>
+                    <div class="resize-handle sw" data-handle="sw"></div>
+                    <div class="resize-handle s" data-handle="s"></div>
+                    <div class="resize-handle se" data-handle="se"></div>
+                </div>
+                
+                <!-- Dynamically injected source-containers go here -->
+                
+            </div>
+            <!-- Empty state hint -->
+            <div id="canvas-empty-state" class="empty-hint">
+                No sources added. Click "Add Source".
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Control Panel -->
+    <footer class="control-panel" id="control-panel">
+        <div class="panel-header">
+            <h3>Sources</h3>
+        </div>
+        <div class="source-list" id="source-list">
+            <!-- Dynamically injected source-control-rows go here -->
+        </div>
+    </footer>
+
+    <!-- Templates -->
+    
+    <template id="tpl-source-container">
+        <div class="source-container" data-id="">
+            <div class="crop-wrapper">
+                <div class="video-offset">
+                    <video autoplay playsinline></video>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template: Source Control Row -->
+    <template id="tpl-source-control-row">
+        <div class="source-control-row" data-id="">
+            <div class="row-header">
+                <div class="row-left">
+                    <span class="source-title">Browser Tab</span>
+                </div>
+                <div class="row-right">
+                    <button class="icon-btn btn-toggle-visible" title="Show/Hide">
+                        <svg class="icon-eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg class="icon-eye-off" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    </button>
+                    <button class="icon-btn btn-toggle-lock" title="Lock Position">
+                        <svg class="icon-unlock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+                        <svg class="icon-lock" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="row-body">
+                <!-- Audio Controls -->
+                <div class="control-group">
+                    <button class="icon-btn btn-mute" title="Mute/Unmute">
+                        <svg class="icon-vol" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        <svg class="icon-muted" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                    </button>
+                    <input type="range" class="inp-volume" min="0" max="1" step="0.01" value="1" title="Volume">
+                </div>
+                
+                <!-- Opacity -->
+                <div class="control-group">
+                    <label>Opacity</label>
+                    <input type="range" class="inp-opacity" min="0" max="1" step="0.01" value="1" title="Opacity">
+                </div>
+
+                <!-- Z-Order -->
+                <div class="control-group">
+                    <button class="btn-text btn-z-down" title="Send Backward">Backward</button>
+                    <button class="btn-text btn-z-up" title="Bring Forward">Forward</button>
+                    <button class="btn-text btn-z-bottom" title="Send To Back">To Back</button>
+                    <button class="btn-text btn-z-top" title="Bring To Front">To Front</button>
+                </div>
+
+                <!-- Crop Values -->
+                <div class="control-group crop-group">
+                    <label>Crop (px)</label>
+                    <div class="crop-inputs">
+                        <input type="number" class="inp-crop-top" value="0" min="0" title="Top">
+                        <input type="number" class="inp-crop-bottom" value="0" min="0" title="Bottom">
+                        <input type="number" class="inp-crop-left" value="0" min="0" title="Left">
+                        <input type="number" class="inp-crop-right" value="0" min="0" title="Right">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Modal: Shortcuts -->
+    <div id="modal-shortcuts" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Keyboard Shortcuts</h2>
+            <ul>
+                <li><strong>Alt + Drag Edge</strong>: Crop selected source</li>
+                <li><strong>Drag Inside</strong>: Move selected source</li>
+                <li><strong>Drag Edge</strong>: Resize selected source</li>
+                <li><strong>Space</strong>: Toggle Fullscreen Mode</li>
+                <li><strong>Delete</strong>: Remove selected source</li>
+                <li><strong>Ctrl + F</strong>: Fit selected source to screen</li>
+                <li><strong>Ctrl + 0</strong>: Reset crop of selected source</li>
+            </ul>
+            <button id="btn-close-shortcuts" class="btn primary">Close</button>
+        </div>
+    </div>
+
+    <script src="script.js?v=3"></script>
+</body>
+</html>
