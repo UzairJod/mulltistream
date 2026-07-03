@@ -48,7 +48,12 @@ function generateId() {
 async function addSource() {
     try {
         const stream = await navigator.mediaDevices.getDisplayMedia({
-            video: { displaySurface: "browser" },
+            video: { 
+                displaySurface: "browser",
+                frameRate: { ideal: 60, max: 60 },
+                width: { ideal: 1920, max: 3840 },
+                height: { ideal: 1080, max: 2160 }
+            },
             audio: true
         });
         
